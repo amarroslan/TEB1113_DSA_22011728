@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Queue & Stack</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            flex-direction: column;
+        }
+
+        .container {
+            display: flex;
+            width: 80%;
+            height: calc(100% - 70px); /* Adjust height to allow space for music player */
+            margin-top: 40px;
+            padding-bottom: 70px; /* Add padding at the bottom to avoid overlap */
+        }
+
+        /* Left Section: Playlist List */
+        .left-section {
+            width: 250px;
+            margin-right: 20px;
+	    margin-left: 20px;
+            background-color: #181818;
+            padding: 20px;
+            border-radius: 8px;
+            height: 100%;
+        }
+
+        .spotify-logo {
+            width: 40px;
+            height: 40px;
+            background-image: url('Spotify_Primary_Logo_RGB_White.png');
+            background-size: cover;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+
+        .left-section h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .playlist-item {
+            margin: 10px 0;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .playlist-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+
+        .playlist-item:hover {
+            color: #1db954;
+        }
+
+        /* Middle Section: Current Playlist */
+        .middle-section {
+            flex: 2;
+            background-color: #181818;
+            padding: 20px;
+            border-radius: 8px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Current Playlist Image and Title */
+        .song-header {
+            display: flex;
+            margin-bottom: 20px;
+            flex-direction: column;
+        }
+
+        .song-header img {
+            width: 150px;
+            height: 150px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+
+        .song-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        /* Song Actions */
+        .song-actions button {
+            background-color: #1db954;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        .song-actions button:hover {
+            background-color: #1ed760;
+        }
+
+        .song-list {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 30px;
+        }
+
+        .song {
+            background-color: #333;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .song img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .song:hover {
+            background-color: #1db954;
+        }
+
+        /* Right Section: Queue and Stack */
+        .right-section {
+            width: 250px;
+            background-color: #181818;
+            padding: 20px;
+            border-radius: 8px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            margin-left: 20px;
+	    margin-right: -280px;
+        }
+
+        /* Queue and Stack Sections */
+        .queue-stack-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .queue, .stack {
+            flex: 1;
+            margin-right: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .queue h2, .stack h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* Result */
+        .result {
+            font-size: 18px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #1db954;
+        }
+
+        /* Bottom Music Player */
+        .music-player {
+            height: 9%;
+            width: 100%;
+            background-color: #000000;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-left: 30px;
+            padding-right: 30px;
+            z-index: 10; /* Ensure the music player stays on top */
+        }
+
+        .music-player img {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .music-player .player-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .music-player .player-controls button {
+            background-color: #1db954;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+            border-radius: 200px;
+	    
+        }
+
+        .music-player .track-info {
+            font-size: 15px;
+            color: #fff;
+            margin-left: 10px;
+	    margin-right: 10px;
+        }
+
+        .music-player .progress-bar {
+            width: 60%;
+            height: 5px;
+            background-color: #333;
+            margin-top: 10px;
+	    margin-right: 300px;
+        }
+
+        .music-player .progress-bar span {
+            display: block;
+            height: 100%;
+            background-color: #1db954;
+            width: 10%;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Section: Playlist List -->
+        <div class="left-section">
+            <div class="spotify-logo"></div> <!-- Spotify Logo Placeholder -->
+
+            <h2>Your Library</h2>
+            <div class="playlist-item">
+                <img src="10ff2a2c-9a31-4bfb-bb40-f4faeb08e81d.jpg" alt="Playlist Image">
+                <span>Liked Songs</span>
+            </div>
+            <div class="playlist-item">
+                <img src="64606da7-e51d-4867-bc18-e35d668269d0.jpg" alt="Playlist Image">
+                <span>Playlist</span>
+            </div>
+            <div class="playlist-item">
+                <img src="36046e27-6e33-49ce-a981-6eb2e119a954.jpg" alt="Playlist Image">
+                <span>Playlist</span>
+            </div>
+            <div class="playlist-item">
+                <img src="a93d9893-f84c-4788-9359-df7bedb16f01.jpg" alt="Playlist Image">
+                <span>Playlist</span>
+            </div>
+            <div class="playlist-item">
+                <img src="df89b486-8f94-43f3-a6f5-053b2d1f7e3d.jpg" alt="Playlist Image">
+                <span>Playlist</span>
+            </div>
+        </div>
+
+        <!-- Middle Section: Current Playlist -->
+        <div class="middle-section">
+            <div class="song-header">
+                <img src="55e9a9f1-971b-4a88-bb97-28acdefd1c86.jpg" alt="Current Playlist Image">
+                <h1>My Playlist</h1>
+                <p>Public Playlist - 3 songs</p>
+            </div>
+
+            <div class="song-list">
+                <div class="song">
+                    <img src="Ive_–_After_Like.png" alt="Song Image">
+                    <span>After LIKE - IVE</span>
+                    <div class="song-actions">
+                        <button onclick="queueSong(songs[0])">Queue</button>
+                        <button onclick="stackSong(songs[0])">Stack</button>
+                    </div>
+                </div>
+                <div class="song">
+                    <img src="Midas_Touch_cover.jpg" alt="Song Image">
+                    <span>Midas Touch - KISS OF LIFE</span>
+                    <div class="song-actions">
+                        <button onclick="queueSong(songs[1])">Queue</button>
+                        <button onclick="stackSong(songs[1])">Stack</button>
+                    </div>
+                </div>
+                <div class="song">
+                    <img src="lesserafim.jpg" alt="Song Image">
+                    <span>EASY - LE SSERAFIM</span>
+                    <div class="song-actions">
+                        <button onclick="queueSong(songs[2])">Queue</button>
+                        <button onclick="stackSong(songs[2])">Stack</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section: Queue and Stack -->
+        <div class="right-section">
+            <div class="queue-stack-container">
+                <div class="queue">
+                    <h2>Queue (FIFO)</h2>
+                    <div id="queueDisplay" class="queue"></div>
+                    <button onclick="dequeueSong()">Dequeue Song</button>
+                </div>
+
+                <div class="stack">
+                    <h2>Stack (LIFO)</h2>
+                    <div id="stackDisplay" class="stack"></div>
+                    <button onclick="popSong()">Pop Song</button>
+                </div>
+            </div>
+
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <div class="music-player">
+        <img id="songThumbnail" src="0cb97fc6-9adb-4d4d-bc09-6a68c51cdfe3.jpg" alt="Song Thumbnail">
+        <div class="track-info">
+            <p id="songTitle">-</p>
+            <p id="songDuration">0:00</p>
+        </div>
+        <div class="player-controls">
+            <button id="playPauseButton" onclick="togglePlayPause()">▶</button>
+            <button id="nextButton" onclick="nextSong()">⏭</button>
+        </div>
+        <div class="progress-bar">
+            <span id="progressBarFill" style="width: 0%"></span>
+        </div>
+    </div>
+
+    <script>
+        const songs = [
+            { title: "After LIKE - IVE", file: "After LIKE [CVxTT38_J4c].mp3", image: "Ive_–_After_Like.png" },
+            { title: "Midas Touch - KISS OF LIFE", file: "Midas Touch (Midas Touch) [N0zQoNSJl-0].mp3", image: "Midas_Touch_cover.jpg" },
+            { title: "EASY - LE SSERAFIM", file: "LE SSERAFIM - 'EASY' (Audio) [eAdqhLFmHa8].mp3", image: "lesserafim.jpg" }
+        ];
+
+        let currentSongIndex;
+        let isPlaying = false;
+        let audio = new Audio();
+        let progressInterval;
+
+        let queue = [];
+        let stack = [];
+
+        // Update the song information in the music player
+        function updateSongInfo() {
+            const currentSong = songs[currentSongIndex];
+            document.getElementById("songTitle").innerText = currentSong.title;
+            document.getElementById("songThumbnail").src = currentSong.image;
+        }
+
+        // Play or Pause the song
+        function togglePlayPause() {
+            if (isPlaying) {
+                audio.pause();
+                document.getElementById("playPauseButton").innerText = "▶";
+            } else {
+                audio.play();
+                document.getElementById("playPauseButton").innerText = "❚❚";
+                startProgressBar();
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // Format time as mm:ss
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+        }
+
+        // Update progress bar
+        function updateProgressBar() {
+            const progressBar = document.getElementById("progressBarFill");
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        // Start progress bar interval
+        function startProgressBar() {
+            if (progressInterval) clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                updateProgressBar();
+                document.getElementById("songDuration").innerText = formatTime(audio.currentTime);
+            }, 500);
+        }
+
+        // Next song logic
+        function nextSong() {
+            let nextSong = null;
+		
+            // Check if there are songs in the queue (FIFO)
+            if (queue.length > 0) {
+		currentSongIndex = -1;
+                currentSongIndex = (currentSongIndex + 1) % queue.length;
+        nextSong = queue[currentSongIndex];
+	queue.shift();
+	updateQueueDisplay();
+	document.getElementById("playPauseButton").innerText = "❚❚";
+            }
+            // If the queue is empty, check the stack (LIFO)
+            else if (stack.length > 0) {
+		i = 3 - stack.length;
+		currentSongIndex = 2;
+                currentSongIndex = (currentSongIndex - i) % stack.length;
+        nextSong = stack[currentSongIndex];
+	stack.pop();
+	updateStackDisplay();
+	i++;
+	document.getElementById("playPauseButton").innerText = "❚❚";
+            }
+
+            // If we have a song to play, update the music player and play the next song
+            if (nextSong) {
+                currentSongIndex = songs.findIndex(song => song.title === nextSong.title);
+                audio.src = songs[currentSongIndex].file;
+                updateSongInfo();
+                audio.play();
+            } else {
+                updateResult("No more songs to play.");
+            }
+        }
+
+        // Add to Queue
+        function queueSong(song) {
+            if (queue.includes(song)) {
+                updateResult("Song already in Queue.");
+                return;
+            }
+            queue.push(song);
+            updateQueueDisplay();
+            updateResult("Queued: " + song.title);
+        }
+
+        // Add to Stack
+        function stackSong(song) {
+            if (stack.includes(song)) {
+                updateResult("Song already in Stack.");
+                return;
+            }
+            stack.push(song);
+            updateStackDisplay();
+            updateResult("Stacked: " + song.title);
+        }
+
+        // Dequeue a song (FIFO)
+        function dequeueSong() {
+            if (queue.length > 0) {
+                queue.shift();
+                updateQueueDisplay();
+            }
+        }
+
+        // Pop a song (LIFO)
+        function popSong() {
+            if (stack.length > 0) {
+                stack.pop();
+                updateStackDisplay();
+            }
+        }
+
+        // Update Queue Display
+        function updateQueueDisplay() {
+            const queueDisplay = document.getElementById("queueDisplay");
+            queueDisplay.innerHTML = '';
+            queue.forEach(song => {
+                const songElement = document.createElement('div');
+                songElement.classList.add('item');
+                songElement.textContent = song.title;
+                queueDisplay.appendChild(songElement);
+            });
+        }
+
+        // Update Stack Display
+        function updateStackDisplay() {
+            const stackDisplay = document.getElementById("stackDisplay");
+            stackDisplay.innerHTML = '';
+            stack.forEach(song => {
+                const songElement = document.createElement('div');
+                songElement.classList.add('item');
+                songElement.textContent = song.title;
+                stackDisplay.appendChild(songElement);
+            });
+        }
+
+        // Update Result Message
+        function updateResult(message) {
+            const resultDisplay = document.getElementById("result");
+            resultDisplay.textContent = message;
+        }
+
+        // Initialize UI with the first song
+        updateSongInfo();
+
+        // Event listeners for controls
+        document.getElementById("playPauseButton").addEventListener("click", togglePlayPause);
+        document.getElementById("nextButton").addEventListener("click", nextSong);
+    </script>
+</body>
+</html>
