@@ -1,8 +1,9 @@
 /*
-id: 22011705
-name: amir
-group: g1
-lab: L2 (Hard) - A Boolean Matrix Question
+ID: 22011728
+Name: Muhammad Amar bin Roslan
+Contact: 0195154165
+Email: muhammad_22011728@utp.edu.my
+LAb: 2
 problem: https://geeksforgeeks.org/a-boolean-matrix-question/
 */
 
